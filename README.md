@@ -1,1 +1,30 @@
-# litecord
+
+
+## **LiteCord** - a  lighweight Chromium-based client
+
+
+Litecord is an app made by embedding Chromium browser in C# Windows Forms app. This was made specifically to be light and used on OS old as Windows 7 SP1.
+
+ **Minimal Specs**
+
+ - A 1 GHz CPU
+ - 2 GB of RAM
+ - Integrated GPU
+ - 300 MB of free storage
+ - Windows 7 SP1
+ - NET Framework 4.7.2
+
+**To Do**
+
+ - Make an installer
+ - Make a Vencord version
+ - Make a dynamic title bar
+ - Make and add an app icon
+ 
+ 
+ **Screenshots**
+![Litecord Beta](https://files.catbox.moe/r9lyab.png)
+
+
+
+
