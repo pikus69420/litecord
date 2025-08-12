@@ -17,11 +17,7 @@ SOURCE CODE NOT AVAILBLE ON GITHUB AS FOR NOW BECAUSE OF THE SIZE LIMIT!
 
 **To Do**
 
- - Make an installer
  - Make a Vencord version
- - Make a dynamic title bar
- - Make and add an app icon
- 
  
  **Screenshots**
 ![Litecord Beta](https://files.catbox.moe/r9lyab.png)
