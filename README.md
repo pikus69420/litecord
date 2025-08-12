@@ -18,6 +18,7 @@ SOURCE CODE NOT AVAILBLE ON GITHUB AS FOR NOW BECAUSE OF THE SIZE LIMIT!
 **To Do**
 
  - Make a Vencord version
+ - Make Litecord run in background
  
  **Screenshots**
 ![Litecord Beta](https://files.catbox.moe/r9lyab.png)
