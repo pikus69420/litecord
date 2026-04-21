@@ -4,7 +4,6 @@
 
 
 Litecord is an app made by embedding Chromium browser in C# Windows Forms app. This was made specifically to be light and used on OS old as Windows 7 SP1.
-SOURCE CODE NOT AVAILBLE ON GITHUB AS FOR NOW BECAUSE OF THE SIZE LIMIT!
 
  **Minimal Specs**
 
@@ -18,7 +17,6 @@ SOURCE CODE NOT AVAILBLE ON GITHUB AS FOR NOW BECAUSE OF THE SIZE LIMIT!
 **To Do**
 
  - Make a Vencord version
- - Make Litecord run in background
  
  **Screenshots**
 ![Litecord Beta](https://files.catbox.moe/r9lyab.png)
