@@ -1,97 +1,100 @@
-using Microsoft.Web.WebView2.Core;
+using System;
 using System.IO;
+using System.Windows.Forms;
+using System.Text.Json;
+using System.Globalization;
+using System.Diagnostics;
+using CefSharp;
+using CefSharp.WinForms;
 
 namespace litecord
 {
     public partial class Form1 : Form
     {
-        private NotifyIcon trayIcon;
+        private ChromiumWebBrowser browser;
         private ContextMenuStrip trayMenu;
+        private SplashScreen _splash;
+        private string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Litecord");
 
-        public Form1()
+        public Form1(SplashScreen splash)
         {
             InitializeComponent();
+            _splash = splash;
 
-            var field = typeof(Form1).GetField("components", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            if (field != null)
+            if (!Directory.Exists(appDataPath)) Directory.CreateDirectory(appDataPath);
+
+            InitCef();
+            SetupTrayMenu();
+
+            browser = new ChromiumWebBrowser("https://discord.com/app");
+            browser.LifeSpanHandler = new CustomLifeSpanHandler();
+
+            browser.TitleChanged += (s, args) =>
             {
-                var container = (System.ComponentModel.IContainer)field.GetValue(this);
-                if (container != null)
+                if (this.IsHandleCreated && !this.IsDisposed)
                 {
-                    foreach (var item in container.Components)
+                    this.BeginInvoke(new Action(() =>
                     {
-                        if (item is NotifyIcon oldIcon)
+                        string t = args.Title;
+                        if (!string.IsNullOrEmpty(t) && t.Contains("Discord"))
                         {
-                            oldIcon.Visible = false;
-                            oldIcon.Dispose();
+                            string newTitle = t.Replace("Discord", "Litecord");
+                            if (this.Text != newTitle) this.Text = newTitle;
                         }
+                    }));
+                }
+            };
+
+            browser.LoadingStateChanged += (s, args) =>
+            {
+                if (args.IsLoading == false)
+                {
+                    if (_splash != null)
+                    {
+                        this.BeginInvoke(new Action(() => {
+                            if (_splash != null && !_splash.IsDisposed) _splash.Close();
+                            _splash = null;
+                        }));
                     }
                 }
-            }
+            };
 
-            this.ContextMenuStrip = null;
-            webView21.Source = null;
-            this.Load += Form1_Load;
-            SetupTray();
+            this.Controls.Add(browser);
+            browser.Dock = DockStyle.Fill;
         }
 
-        private void SetupTray()
+        private void InitCef()
+        {
+            if (Cef.IsInitialized == false)
+            {
+                var settings = new CefSettings();
+                string sysLang = CultureInfo.CurrentCulture.Name;
+                settings.Locale = sysLang;
+                settings.AcceptLanguageList = sysLang + "," + CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                settings.RootCachePath = appDataPath;
+                settings.CachePath = Path.Combine(appDataPath, "Cache");
+                settings.PersistSessionCookies = true;
+                settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+                Cef.Initialize(settings);
+            }
+        }
+
+        private void SetupTrayMenu()
         {
             trayMenu = new ContextMenuStrip();
             trayMenu.Items.Add("Show Litecord", null, (s, e) => { this.Show(); this.WindowState = FormWindowState.Normal; });
-            trayMenu.Items.Add("Github Page", null, (s, e) => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/pikus69420/litecord") { UseShellExecute = true }));
-            trayMenu.Items.Add("-");
-            trayMenu.Items.Add("Quit", null, (s, e) => Application.Exit());
-
-            trayIcon = new NotifyIcon();
-            trayIcon.Text = "Litecord";
-            trayIcon.Icon = this.Icon;
-            trayIcon.ContextMenuStrip = trayMenu;
-            trayIcon.Visible = true;
-
-            trayIcon.DoubleClick += (s, e) => { this.Show(); this.WindowState = FormWindowState.Normal; };
-
-            this.Resize += (s, e) => { if (this.WindowState == FormWindowState.Minimized) this.Hide(); };
+            trayMenu.Items.Add("Exit", null, (s, e) => {
+                this.notifyIcon1.Visible = false;
+                Cef.Shutdown();
+                Application.Exit();
+            });
+            this.notifyIcon1.ContextMenuStrip = trayMenu;
         }
 
-        private async void Form1_Load(object sender, EventArgs e)
+        
+        private void Form1_Load(object sender, System.EventArgs e)
         {
-            try
-            {
-                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Litecord");
-                var env = await CoreWebView2Environment.CreateAsync(null, path);
-
-                await webView21.EnsureCoreWebView2Async(env);
-
-                webView21.CoreWebView2.Settings.IsStatusBarEnabled = false;
-                webView21.CoreWebView2.Settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-                webView21.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
-
-                webView21.CoreWebView2.PermissionRequested += (s, args) =>
-                {
-                    if (args.PermissionKind == CoreWebView2PermissionKind.Notifications)
-                    {
-                        args.State = CoreWebView2PermissionState.Allow;
-                    }
-                };
-
-                webView21.CoreWebView2.NewWindowRequested += (s, args) =>
-                {
-                    args.Handled = true;
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(args.Uri) { UseShellExecute = true });
-                };
-
-                webView21.CoreWebView2.DocumentTitleChanged += (s, args) =>
-                {
-                    this.Text = webView21.CoreWebView2.DocumentTitle;
-                };
-
-                webView21.Source = new Uri("https://discord.com/app");
-            }
-            catch
-            {
-                webView21.Source = new Uri("https://discord.com/app");
-            }
+           
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -103,9 +106,18 @@ namespace litecord
             }
             base.OnFormClosing(e);
         }
+    }
 
-        private void webView21_Click(object sender, EventArgs e)
+    public class CustomLifeSpanHandler : ILifeSpanHandler
+    {
+        public bool OnBeforePopup(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
         {
+            newBrowser = null;
+            Process.Start(new ProcessStartInfo(targetUrl) { UseShellExecute = true });
+            return true;
         }
+        public void OnAfterCreated(IWebBrowser chromiumWebBrowser, IBrowser browser) { }
+        public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser) { return false; }
+        public void OnBeforeClose(IWebBrowser chromiumWebBrowser, IBrowser browser) { }
     }
 }

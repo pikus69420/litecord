@@ -30,24 +30,14 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
-            notifyIcon1 = new NotifyIcon(components);
             contextMenuStrip1 = new ContextMenuStrip(components);
-            ((System.ComponentModel.ISupportInitialize)webView21).BeginInit();
+            notifyIcon1 = new NotifyIcon(components);
             SuspendLayout();
             // 
-            // webView21
+            // contextMenuStrip1
             // 
-            webView21.AllowExternalDrop = true;
-            webView21.CreationProperties = null;
-            webView21.DefaultBackgroundColor = Color.White;
-            webView21.Dock = DockStyle.Fill;
-            webView21.Location = new Point(0, 0);
-            webView21.Name = "webView21";
-            webView21.Size = new Size(1141, 659);
-            webView21.TabIndex = 0;
-            webView21.ZoomFactor = 1D;
-            webView21.Click += webView21_Click;
+            contextMenuStrip1.Name = "contextMenuStrip1";
+            contextMenuStrip1.Size = new Size(61, 4);
             // 
             // notifyIcon1
             // 
@@ -55,30 +45,22 @@
             notifyIcon1.Text = "notifyIcon1";
             notifyIcon1.Visible = true;
             // 
-            // contextMenuStrip1
-            // 
-            contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(181, 26);
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.WindowText;
             ClientSize = new Size(1141, 659);
-            Controls.Add(webView21);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Litecord";
             Load += Form1_Load;
-            ((System.ComponentModel.ISupportInitialize)webView21).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
-
-        private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
-        private NotifyIcon notifyIcon1;
         private ContextMenuStrip contextMenuStrip1;
+        private NotifyIcon notifyIcon1;
     }
 }
